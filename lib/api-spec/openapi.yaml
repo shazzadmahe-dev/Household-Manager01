@@ -1,0 +1,773 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: 82 Walthen Drive - Roommate Expense Tracker API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication
+  - name: users
+    description: User management
+  - name: rent
+    description: Rent management
+  - name: bills
+    description: Bills management
+  - name: expenses
+    description: Household expenses
+  - name: payments
+    description: Payment tracking
+  - name: chat
+    description: Chat messages
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users:
+    get:
+      operationId: getUsers
+      tags: [users]
+      summary: List all users
+      responses:
+        "200":
+          description: Users list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Create a new user (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/{id}:
+    put:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    delete:
+      operationId: deleteUser
+      tags: [users]
+      summary: Delete user (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /rent:
+    get:
+      operationId: getRentSettings
+      tags: [rent]
+      summary: Get rent settings for all users
+      responses:
+        "200":
+          description: Rent settings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RentSetting"
+    put:
+      operationId: updateRentSettings
+      tags: [rent]
+      summary: Update rent settings (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/UpdateRentSettingRequest"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RentSetting"
+
+  /bills:
+    get:
+      operationId: getBills
+      tags: [bills]
+      summary: Get bills for current month
+      responses:
+        "200":
+          description: Bills list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Bill"
+    post:
+      operationId: createBill
+      tags: [bills]
+      summary: Create a bill (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBillRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bill"
+
+  /bills/{id}:
+    put:
+      operationId: updateBill
+      tags: [bills]
+      summary: Update a bill (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBillRequest"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bill"
+    delete:
+      operationId: deleteBill
+      tags: [bills]
+      summary: Delete a bill (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /expenses:
+    get:
+      operationId: getExpenses
+      tags: [expenses]
+      summary: Get household expenses
+      responses:
+        "200":
+          description: Expenses list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Expense"
+    post:
+      operationId: createExpense
+      tags: [expenses]
+      summary: Add a household expense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateExpenseRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+
+  /expenses/{id}:
+    delete:
+      operationId: deleteExpense
+      tags: [expenses]
+      summary: Delete an expense (undo)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /payments:
+    get:
+      operationId: getPayments
+      tags: [payments]
+      summary: Get all payments
+      responses:
+        "200":
+          description: Payments list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Payment"
+
+  /payments/{id}/mark-paid:
+    post:
+      operationId: markPaymentPaid
+      tags: [payments]
+      summary: Mark payment as paid (pending verification)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+
+  /payments/{id}/verify:
+    post:
+      operationId: verifyPayment
+      tags: [payments]
+      summary: Verify payment (admin or expense creator)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+
+  /payments/{id}/undo:
+    post:
+      operationId: undoPayment
+      tags: [payments]
+      summary: Undo a payment status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+
+  /chat:
+    get:
+      operationId: getChatMessages
+      tags: [chat]
+      summary: Get chat messages (last 7 days)
+      responses:
+        "200":
+          description: Messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChatMessage"
+    post:
+      operationId: sendChatMessage
+      tags: [chat]
+      summary: Send a chat message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendChatMessageRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatMessage"
+
+  /chat/{id}:
+    delete:
+      operationId: deleteChatMessage
+      tags: [chat]
+      summary: Delete own chat message
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Get dashboard summary
+      responses:
+        "200":
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardData"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+      required: [success]
+
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required: [username, password]
+
+    LoginResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+      required: [user]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        displayName:
+          type: string
+        role:
+          type: string
+          enum: [admin, roommate]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, username, displayName, role, createdAt]
+
+    CreateUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        displayName:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum: [admin, roommate]
+      required: [username, displayName, password, role]
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        displayName:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum: [admin, roommate]
+
+    RentSetting:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        amount:
+          type: number
+        dueDay:
+          type: integer
+        user:
+          $ref: "#/components/schemas/User"
+      required: [id, userId, amount, dueDay, user]
+
+    UpdateRentSettingRequest:
+      type: object
+      properties:
+        userId:
+          type: integer
+        amount:
+          type: number
+        dueDay:
+          type: integer
+      required: [userId, amount, dueDay]
+
+    Bill:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [electricity, wifi, other]
+        name:
+          type: string
+        amount:
+          type: number
+        month:
+          type: string
+        splitAmongAll:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, type, name, amount, month, splitAmongAll, createdAt]
+
+    CreateBillRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [electricity, wifi, other]
+        name:
+          type: string
+        amount:
+          type: number
+        month:
+          type: string
+        splitAmongAll:
+          type: boolean
+      required: [type, name, amount, month, splitAmongAll]
+
+    UpdateBillRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+        month:
+          type: string
+        splitAmongAll:
+          type: boolean
+
+    Expense:
+      type: object
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
+        amount:
+          type: number
+        addedBy:
+          type: integer
+        addedByUser:
+          $ref: "#/components/schemas/User"
+        includedUserIds:
+          type: array
+          items:
+            type: integer
+        createdAt:
+          type: string
+          format: date-time
+        payments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Payment"
+      required: [id, description, amount, addedBy, addedByUser, includedUserIds, createdAt, payments]
+
+    CreateExpenseRequest:
+      type: object
+      properties:
+        description:
+          type: string
+        amount:
+          type: number
+        includedUserIds:
+          type: array
+          items:
+            type: integer
+      required: [description, amount, includedUserIds]
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        user:
+          $ref: "#/components/schemas/User"
+        referenceType:
+          type: string
+          enum: [rent, bill, expense]
+        referenceId:
+          type: integer
+        amount:
+          type: number
+        status:
+          type: string
+          enum: [pending, paid_unverified, verified]
+        month:
+          type: string
+        paidAt:
+          type: string
+          format: date-time
+          nullable: true
+        verifiedAt:
+          type: string
+          format: date-time
+          nullable: true
+        description:
+          type: string
+      required: [id, userId, user, referenceType, referenceId, amount, status, month, description]
+
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        user:
+          $ref: "#/components/schemas/User"
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, userId, user, message, createdAt]
+
+    SendChatMessageRequest:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    DashboardData:
+      type: object
+      properties:
+        myPendingBalance:
+          type: number
+        totalMonthlyExpenses:
+          type: number
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityItem"
+        actionsNeeded:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActionItem"
+        currentMonth:
+          type: string
+      required: [myPendingBalance, totalMonthlyExpenses, recentActivity, actionsNeeded, currentMonth]
+
+    ActivityItem:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+        user:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required: [id, type, description, user, timestamp]
+
+    ActionItem:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+        amount:
+          type: number
+        paymentId:
+          type: integer
+          nullable: true
+      required: [id, type, description, amount]

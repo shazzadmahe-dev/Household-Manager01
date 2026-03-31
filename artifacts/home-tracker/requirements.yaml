@@ -1,0 +1,17 @@
+packages:
+  "framer-motion": "For page transitions, dialog animations, and smooth interactive elements"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility function to efficiently merge Tailwind CSS classes"
+  "date-fns": "For formatting chat timestamps, activity dates, and billing cycles"
+  "react-hook-form": "For robust form state management and validation"
+  "@hookform/resolvers": "Zod resolver for react-hook-form"
+
+images:
+  - path: "artifacts/home-tracker/public/images/house-hero.png"
+    description: "A beautiful, warm, modern minimalist illustration of a cozy house exterior at sunset, terracotta and sage green tones, welcoming atmosphere"
+    aspect_ratio: "16:9"
+
+notes:
+  - Using React Query refetchInterval for the chat polling
+  - Forms use Zod for validation to match backend types
+  - Modals and Overlays built with Framer Motion for smooth entrances
